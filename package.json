@@ -1,0 +1,22 @@
+{
+  "name": "hexionary",
+  "version": "0.1.0",
+  "description": "Guess the color of this word!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fxedel/hexionary.git"
+  },
+  "author": "Marie Wollnik, Felix Edelmann",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fxedel/hexionary/issues"
+  },
+  "homepage": "https://github.com/fxedel/hexionary#readme",
+  "dependencies": {
+    "fastify": "^4.26.2"
+  }
+}

@@ -2,8 +2,10 @@
   "name": "hexionary",
   "version": "0.1.0",
   "description": "Guess the color of this word!",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
+    "api": "node api/server.js",
+    "start": "npm run api",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

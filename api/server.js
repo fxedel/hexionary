@@ -1,12 +1,22 @@
 import fs from 'node:fs'
 import Fastify from 'fastify'
 
-const words = await getWords()
-console.log(`Loaded ${words.length} words.`)
 
 const fastify = Fastify({
-  logger: true
+  // see https://fastify.dev/docs/latest/Reference/Logging/
+  logger: {
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        translateTime: 'HH:MM:ss Z',
+        ignore: 'pid,hostname',
+      },
+    },
+  },
 })
+
+const words = await getWords()
+fastify.log.info(`Loaded ${words.length} words.`)
 
 fastify.get('/word', async function handler (request, reply) {
   return {
@@ -54,7 +64,7 @@ async function getNounlistData() {
     return fileContent
   } catch (e) {
     if (e instanceof Error && e.code === 'ENOENT') {
-      console.log('Nounlist is not in cache, downloading ...')
+      fastify.log.info('Nounlist is not in cache, downloading ...')
       const res = await fetch('https://www.desiquintans.com/downloads/nounlist/nounlist.txt')
       const data = await res.text()
 

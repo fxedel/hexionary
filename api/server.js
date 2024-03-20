@@ -1,12 +1,16 @@
-// Import the framework and instantiate it
+import fs from 'node:fs'
 import Fastify from 'fastify'
+
+const words = await getWords()
+console.log(`Loaded ${words.length} words.`)
+
 const fastify = Fastify({
   logger: true
 })
 
 fastify.get('/word', async function handler (request, reply) {
   return {
-    word: 'world'
+    word: words[Math.floor(Math.random() * words.length)]
   }
 })
 
@@ -35,4 +39,30 @@ try {
 } catch (err) {
   fastify.log.error(err)
   process.exit(1)
+}
+
+async function getWords() {
+  const data = await getNounlistData()
+  return data.trim().split('\n')
+}
+
+async function getNounlistData() {
+  fs.mkdirSync('./cache', { recursive: true })
+
+  try {
+    const fileContent = fs.readFileSync('./cache/nounlist.txt', { encoding: 'utf-8' })
+    return fileContent
+  } catch (e) {
+    if (e instanceof Error && e.code === 'ENOENT') {
+      console.log('Nounlist is not in cache, downloading ...')
+      const res = await fetch('https://www.desiquintans.com/downloads/nounlist/nounlist.txt')
+      const data = await res.text()
+
+      fs.writeFileSync('./cache/nounlist.txt', data)
+
+      return data
+    }
+
+    throw e
+  }
 }

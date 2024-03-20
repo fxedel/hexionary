@@ -1,6 +1,10 @@
 import fs from 'node:fs'
 import Fastify from 'fastify'
 
+import { load as loadConfig } from './config.js'
+import * as database from './database.js'
+
+const config = loadConfig()
 
 const fastify = Fastify({
   // see https://fastify.dev/docs/latest/Reference/Logging/
@@ -17,6 +21,9 @@ const fastify = Fastify({
 
 const words = await getWords()
 fastify.log.info(`Loaded ${words.length} words.`)
+
+const dbConnection = database.createConnection(config)
+fastify.log.info(`Successfully connected to MySQL database.`)
 
 fastify.get('/word', async function handler (request, reply) {
   return {

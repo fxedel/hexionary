@@ -19,7 +19,10 @@
   },
   "homepage": "https://github.com/fxedel/hexionary#readme",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "fastify": "^4.26.2",
-    "pino-pretty": "^11.0.0"
+    "mysql2": "^3.9.2",
+    "pino-pretty": "^11.0.0",
+    "postgrator": "^7.2.0"
   }
 }

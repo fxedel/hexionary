@@ -26,8 +26,39 @@ const dbConnection = await database.createConnection(config)
 fastify.log.info(`Successfully connected to MySQL database.`)
 
 fastify.get('/word', async function handler (request, reply) {
+  const [rows, _] = await dbConnection.execute(`
+    SELECT DISTINCT word
+    FROM guess
+    WHERE color IS NOT NULL AND amount > 0
+  `)
+
+  // probability to choose a random word among all nouns,
+  // compared to choose word that has already a guess
+  let explorationRate = 0.5
+  if (request.query.knownWordCount !== undefined) {
+    const knownWordCountStr = request.query.knownWordCount
+    if (typeof knownWordCountStr !== 'string' || !knownWordCountStr.match(/^[0-9]+$/)) {
+      reply.status(400)
+      return { error: 'Parameter "knownWordCountStr" is malformed' }
+    }
+
+    const knownWordCount = parseInt(request.query.knownWordCount)
+
+    // if knownWordCount === 0: never explore new words
+    // if knownWordCount === 1: always explore new words
+    explorationRate = knownWordCount / rows.length
+  }
+
+  if (rows.length === 0 || Math.random() < explorationRate) {
+    return {
+      word: words[Math.floor(Math.random() * words.length)]
+    }
+  }
+
+  const row = rows[Math.floor(Math.random() * rows.length)]
+
   return {
-    word: words[Math.floor(Math.random() * words.length)]
+    word: row.word
   }
 })
 

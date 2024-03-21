@@ -22,7 +22,7 @@ const fastify = Fastify({
 const words = await getWords()
 fastify.log.info(`Loaded ${words.length} words.`)
 
-const dbConnection = database.createConnection(config)
+const dbConnection = await database.createConnection(config)
 fastify.log.info(`Successfully connected to MySQL database.`)
 
 fastify.get('/word', async function handler (request, reply) {
@@ -44,10 +44,33 @@ fastify.post('/guess', async function handler(request, reply) {
     return { error: 'Parameter "color" is missing or malformed' }
   }
 
+  await dbConnection.execute(`
+    INSERT INTO
+    guess(word, color, amount)
+    VALUES(?, ?, 1)
+    ON DUPLICATE KEY UPDATE amount = amount + 1
+  `, [word, color])
+
   return {
     word: word,
     color: color,
   }
+})
+
+fastify.get('/guesses', async function handler(request, reply) {
+  const word = request.query.word;
+  if (typeof word !== 'string') {
+    reply.status(400)
+    return { error: 'Parameter "word" is missing or malformed' }
+  }
+
+  const [rows, _] = await dbConnection.execute(`
+    SELECT color, amount
+    FROM guess
+    WHERE word = ?
+  `, [word])
+
+  return rows
 })
 
 // Run the server!

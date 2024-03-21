@@ -19,6 +19,7 @@ export async function createConnection(config) {
     driver: 'mysql',
     database: config.mysql.database,
     schemaTable: 'schemaversion',
+    validateChecksums: false,
     execQuery: async (query) => {
       const [rows, fields] = await mysqlConnection.query(query)
       return {
@@ -33,4 +34,6 @@ export async function createConnection(config) {
   for (const appliedMigration of appliedMigrations) {
     console.log(`Applied database migration:`, appliedMigration)
   }
+
+  return mysqlConnection
 }
